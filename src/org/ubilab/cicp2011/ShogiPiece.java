@@ -154,6 +154,22 @@ public class ShogiPiece implements Serializable {
             // それ以外の場合はフラグテーブルを使ってビット列と単純比較
             return ((flag & flagTable[diff.x()+2][diff.y()+2]) > 0)? true:false;
         }
+        
+        /**
+         * 棋譜表記からShogiPieceTypeに変換する
+         * @param str 棋譜表記の駒名
+         * @return 対応するShogiPieceType
+         * @exception IllegalArgumentException 与えられた文字列が正しくなかった場合
+         * @since 2011/11/25
+         */
+        public static ShogiPieceType parse(String str) {
+            for (ShogiPieceType t : values()) {
+                if (t.getCharacter(false).equals(str))      return t;
+                else if (t.getCharacter(true).equals(str))  return t;
+            }
+            
+            throw new IllegalArgumentException();
+        }
     }
      
     private ShogiPieceType type;
@@ -201,7 +217,7 @@ public class ShogiPiece implements Serializable {
      * @return 駒の名前
      * @since 2011/11/23
      */
-    public String getCharacter()    { return type.getCharacter(isPromote); }
+    public String getCharacter()    { return type.getCharacter(false); }
     /**
      * 成る
      * @since 2011/11/23
