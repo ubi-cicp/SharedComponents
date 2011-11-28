@@ -189,6 +189,16 @@ public class ShogiPiece implements Serializable {
     }
     
     /**
+     * 将棋駒をひとつ生成
+     * @param chara 駒の種類の棋譜表記
+     * @param player 駒の所有プレーヤ
+     * @since 2011/11/25
+     */
+    public ShogiPiece(String chara, ShogiPlayer player) {
+        this(ShogiPieceType.parse(chara), player);
+    }
+    
+    /**
      * 駒の種類を取得
      * @return 駒の種類
      * @since 2011/11/23
@@ -218,6 +228,12 @@ public class ShogiPiece implements Serializable {
      * @since 2011/11/23
      */
     public String getCharacter()    { return type.getCharacter(false); }
+    /**
+     * 駒の名前を取得（成判定込み）
+     * @return 駒の名前（成っている場合は成った時の名前）
+     * @since 2011/11/28
+     */
+    public String getPCharacter()   { return type.getCharacter(isPromote); }
     /**
      * 成る
      * @since 2011/11/23
