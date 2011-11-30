@@ -1,6 +1,8 @@
 package org.ubilab.cicp2011;
 
 import java.io.Serializable;
+import java.util.EnumSet;
+import static org.ubilab.cicp2011.ShogiPiece.Direction.*;
 
 /**
  * 将棋の駒を表すクラス
@@ -132,40 +134,40 @@ public class ShogiPiece implements Serializable {
         /**
          * 王将，玉将
          */
-        GYOKU   ("玉", "", (1<<6|1<<7|1<<8|1<<11|1<<12|1<<15|1<<16|1<<17), 0, false),
+        GYOKU   ("玉", "", EnumSet.of(D06,D07,D08,D11,D12,D15,D16,D17), EnumSet.noneOf(Direction.class), false),
         /**
          * 金将
          */
-        KIN     ("金", "", (1<<6|1<<7|1<<8|1<<11|1<<12|1<<16), 0, false),
+        KIN     ("金", "", EnumSet.of(D06,D07,D08,D11,D12,D16), EnumSet.noneOf(Direction.class), false),
         /**
          * 銀将
          */
-        GIN     ("銀", "成銀", (1<<6|1<<7|1<<8|1<<15|1<<17), (1<<11|1<<12|1<<15|1<<16|1<<17), true),
+        GIN     ("銀", "成銀", EnumSet.of(D06,D07,D08,D15,D17), EnumSet.of(D11,D12,D15,D16,D17), true),
         /**
          * 桂馬
          */
-        KEI     ("桂", "成桂", (1<<1|1<<3), (1<<1|1<<3|1<<6|1<<7|1<<8|1<<11|1<<12|1<<16), true),
+        KEI     ("桂", "成桂", EnumSet.of(D01,D03), EnumSet.of(D01,D03,D06,D07,D08,D11,D12,D16), true),
         /**
          * 香車
          */
-        KYO     ("香", "成香", (1<<2|1<<7), (1<<2|1<<6|1<<8|1<<11|1<<12|1<<16), true),
+        KYO     ("香", "成香", EnumSet.of(D02,D07), EnumSet.of(D02,D06,D08,D11,D12,D16), true),
         /**
          * 歩兵
          */
-        FU      ("歩", "と", (1<<7), (1<<6|1<<8|1<<11|1<<12|1<<16), true),
+        FU      ("歩", "と", EnumSet.of(D07), EnumSet.of(D06,D08,D11,D12,D16), true),
         /**
          * 飛車
          */
-        HISHA   ("飛", "竜", (1<<2|1<<7|1<<10|1<<11|1<<12|1<<13|1<<16|1<<21), (1<<6|1<<8|1<<15|1<<17), true),
+        HISHA   ("飛", "竜", EnumSet.of(D02,D07,D10,D11,D12,D13,D16,D21), EnumSet.of(D06,D08,D15,D17), true),
         /**
          * 角行
          */
-        KAKU    ("角", "馬", (1<<0|1<<4|1<<6|1<<8|1<<15|1<<17|1<<19|1<<23), (1<<7|1<<11|1<<12|1<<16), true);
+        KAKU    ("角", "馬", EnumSet.of(D00,D04,D06,D08,D15,D17,D19,D23), EnumSet.of(D07,D11,D12,D16), true);
         
         private final String chara;
         private final String promoteChara;
-        private final int move;
-        private final int promote;
+        private final EnumSet<Direction> move;
+        private final EnumSet<Direction> promoteMove;
         private final boolean promotable;
         
         private static final int[][] flagTable;
@@ -192,20 +194,20 @@ public class ShogiPiece implements Serializable {
          * @param promotable 成れる駒かどうか
          * @since 2011/11/23
          */
-        ShogiPieceType(String name, String promoteName, int move, int promote, boolean promotable) {
+        ShogiPieceType(String name, String promoteName, EnumSet<Direction> move, EnumSet<Direction> promoteMove, boolean promotable) {
             this.chara = name;
             this.promoteChara = promoteName;
             this.move = move;
-            this.promote = move ^ promote;
+            this.promoteMove = move ^ promoteMove;
             this.promotable = promotable;
         }
         
         /**
          * 駒の通常時の移動可能マスを表すビット列を返す
-         * @return 駒の通常時の移動可能マスを表すビット列
+         * @return 駒の通常時の移動可能マスを表すEnumSet
          * @since 2011/11/22
          */
-        public int move()               { return move; };
+        public EnumSet<Direction> move()               { return move; };
         /**
          * 駒の成時の移動可能マスを表すビット列を返す
          * <br>
@@ -213,7 +215,7 @@ public class ShogiPiece implements Serializable {
          * @return 駒の成時の移動可能マスを表すビット列
          * @since 2011/11/22
          */
-        public int promoteMove()        { return promote; };
+        public EnumSet<Direction> promoteMove()        { return promoteMove; };
         /**
          * 駒が成れるかどうか
          * @return 成れる場合はtrue, そうでない場合はfalse
@@ -238,7 +240,7 @@ public class ShogiPiece implements Serializable {
          * @since 2011/11/22
          */
         public boolean isMovable(ShogiPos src, ShogiPos dst, boolean promote) {
-            int flag = promote?this.promote:this.move;
+            EnumSet<Direction> flag = promote?this.promoteMove:this.move;
             ShogiPos diff = src.diff(dst);
             
             // 座標の差が3以上の場合はその方向へ移動可能か判定
